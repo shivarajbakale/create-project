@@ -30,14 +30,49 @@ program.name('create-project').description('CLI to manage and run custom project
 program
   .command('add')
   .description('Add a new command to the list')
-  .argument('<command>', 'The command to execute')
-  .argument('<description>', 'Description of what the command does')
-  .action((command, description) => {
+  .argument('[command]', 'The command to execute')
+  .argument('[description]', 'Description of what the command does')
+  .action(async (command, description) => {
     const commands = getCommands();
-    if (commands.some((cmd) => cmd.command === command)) {
+
+    if (!command || !description) {
+      const answers = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'command',
+          message: chalk.cyan('Enter the command to execute:'),
+          when: !command,
+          validate: (input) => {
+            if (!input.trim()) {
+              return 'Command cannot be empty';
+            }
+            if (commands.some((cmd) => cmd.command === input)) {
+              return 'Command already exists!';
+            }
+            return true;
+          },
+        },
+        {
+          type: 'input',
+          name: 'description',
+          message: chalk.cyan('Enter the description for this command:'),
+          when: !description,
+          validate: (input) => {
+            if (!input.trim()) {
+              return 'Description cannot be empty';
+            }
+            return true;
+          },
+        },
+      ]);
+
+      command = command || answers.command;
+      description = description || answers.description;
+    } else if (commands.some((cmd) => cmd.command === command)) {
       console.log(chalk.red(`Command "${command}" already exists!`));
       return;
     }
+
     commands.push({ command, description });
     saveCommands(commands);
     console.log(chalk.green(`Added command: ${description} (${command})`));

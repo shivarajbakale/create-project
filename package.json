@@ -1,5 +1,5 @@
 {
-  "name": "create-project",
+  "name": "@shivarajbakale/create-project",
   "version": "1.0.0",
   "description": "CLI tool for managing project commands",
   "bin": {
@@ -9,5 +9,18 @@
     "chalk": "^4.1.2",
     "commander": "^9.0.0",
     "inquirer": "^8.0.0"
+  },
+  "keywords": [
+    "cli",
+    "command-line",
+    "project",
+    "automation",
+    "developer-tools"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/create-project.git"
   }
 }
