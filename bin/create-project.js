@@ -128,7 +128,7 @@ program.action(async () => {
   if (commands.length === 0) {
     console.log(
       chalk.yellow(
-        'No commands available. Add commands using: create-project add <command> <hscription>',
+        'No commands available. Add commands using: create-project add <command> <description>',
       ),
     );
     return;
@@ -150,15 +150,32 @@ program.action(async () => {
 
   console.log(chalk.blue(`Running command: ${selectedCommand}`));
 
-  exec(selectedCommand, (error, stdout, stderr) => {
-    if (error) {
-      console.error(chalk.red(`Error executing command: ${error.message}`));
-      return;
+  // Execute command in interactive mode
+  const childProcess = exec(selectedCommand, {
+    stdio: 'inherit', // This will pipe the child process I/O to the parent
+    shell: true,
+  });
+
+  // Handle process events
+  childProcess.stdout?.on('data', (data) => {
+    process.stdout.write(chalk.green(data));
+  });
+
+  childProcess.stderr?.on('data', (data) => {
+    process.stderr.write(chalk.yellow(data));
+  });
+
+  childProcess.on('error', (error) => {
+    console.error(chalk.red(`Error executing command: ${error.message}`));
+  });
+
+  // Wait for the command to complete
+  childProcess.on('exit', (code) => {
+    if (code === 0) {
+      console.log(chalk.green('\nCommand completed successfully'));
+    } else {
+      console.log(chalk.red(`\nCommand failed with exit code ${code}`));
     }
-    if (stderr) {
-      console.error(chalk.yellow(stderr));
-    }
-    console.log(chalk.green(stdout));
   });
 });
 
